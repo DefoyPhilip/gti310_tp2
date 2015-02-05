@@ -9,7 +9,7 @@ package gti310.tp2.audio;
  * For more information on WAVE file format visit :
  * http://ccrma.stanford.edu/courses/422/projects/WaveFormat/
  * 
- * @author François Caron <francois.caron.7@ens.etsmtl.ca>
+ * @author Franï¿½ois Caron <francois.caron.7@ens.etsmtl.ca>
  */
 public interface AudioFilter {
 
