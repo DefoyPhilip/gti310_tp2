@@ -6,7 +6,6 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import gti310.tp2.audio.EchoAudioFilter;
-import gti310.tp2.io.FileSink;
 import gti310.tp2.io.FileSource;
 
 public class Application {
@@ -24,6 +23,9 @@ public class Application {
 		int frequency = ByteBuffer.wrap(sampleRateArr).order(ByteOrder.LITTLE_ENDIAN).getInt();
 		byte[] bytePerSampleArr = Arrays.copyOfRange(byteArr, 34, 36);
 		short bytePerSample = ByteBuffer.wrap(bytePerSampleArr).order(ByteOrder.LITTLE_ENDIAN).getShort();
-		new EchoAudioFilter(fs,frequency,bytePerSample);
+		byte[] numChannelsArr = Arrays.copyOfRange(byteArr, 22, 24);
+		short numChannels = ByteBuffer.wrap(numChannelsArr).order(ByteOrder.LITTLE_ENDIAN).getShort();
+		EchoAudioFilter EAF = new EchoAudioFilter(fs,frequency,bytePerSample,numChannels,args[1],args[2],args[3]);
+		EAF.process();
 	}
 }

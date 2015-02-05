@@ -11,7 +11,7 @@ import java.io.IOException;
  * sequential order to a caller. When the data reaches the end-of-file marker,
  * it will return nothing.
  * 
- * @author François Caron <francois.caron.7@ens.etsmtl.ca>
+ * @author Franois Caron <francois.caron.7@ens.etsmtl.ca>
  */
 public class FileSource {
 	
