@@ -73,4 +73,25 @@ public class FileSource {
 			return null;
 		}
 	}
+	
+	
+	public byte[] popFromTo(int from, int to) {
+		try {
+			/* create a new byte array for the number of bytes asked */
+			byte[] buffer = new byte[to - from];
+			
+			/* skip to the specified index */
+			_reader.skipBytes(from);
+			
+			/* read the number of bytes asked for, or the amount left in the
+			 * file */
+			_reader.read(buffer);
+			
+			/* return what was read */
+			return buffer;
+		} catch (IOException e) {
+			/* something went wrong, or EOF reached */
+			return null;
+		}
+	}
 }
