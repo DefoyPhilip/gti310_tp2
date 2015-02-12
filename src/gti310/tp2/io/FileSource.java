@@ -17,7 +17,7 @@ public class FileSource {
 	
 	/* The file's handler */
 	private DataInputStream _reader;
-
+	private long _fileSize;
 	/**
 	 * Create a new FileSource. The instanciation will be cancelled if the
 	 * specified path is not valid.
@@ -28,12 +28,16 @@ public class FileSource {
 	public FileSource(String location) throws FileNotFoundException {
 		try {
 			/* open the handler on the specified file */
+			FileInputStream fis = new FileInputStream(location);
+			_fileSize = fis.getChannel().size();
 			_reader = new DataInputStream(
-						new BufferedInputStream(
-							new FileInputStream(location)));
+						new BufferedInputStream(fis));
 		} catch (FileNotFoundException e) {
 			/* the path is not valid */
 			throw e;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -73,25 +77,8 @@ public class FileSource {
 			return null;
 		}
 	}
-	
-	
-	public byte[] popFromTo(int from, int to) {
-		try {
-			/* create a new byte array for the number of bytes asked */
-			byte[] buffer = new byte[to - from];
-			
-			/* skip to the specified index */
-			_reader.skipBytes(from);
-			
-			/* read the number of bytes asked for, or the amount left in the
-			 * file */
-			_reader.read(buffer);
-			
-			/* return what was read */
-			return buffer;
-		} catch (IOException e) {
-			/* something went wrong, or EOF reached */
-			return null;
-		}
+
+	public long fileSize() {
+		return _fileSize;
 	}
 }
