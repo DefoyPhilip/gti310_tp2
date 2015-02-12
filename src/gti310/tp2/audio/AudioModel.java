@@ -1,12 +1,13 @@
 package gti310.tp2.audio;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 public class AudioModel {
 	byte[] headerByteArray;
 	short numChannels, bitsPerSample;
-	int sampleRate, chunkSize, subchunk1Size, subchunk2Size;
+	int sampleRate, chunkSize, subchunk1Size, subchunk2Size, byteRate, testo;
 	
 	public AudioModel(byte[] headerByteArray, short numChannels, short bitsPerSample, int sampleRate, int chunksize, int subchunk1Size, int subchunk2Size) {
 		this.headerByteArray = headerByteArray;
@@ -14,6 +15,8 @@ public class AudioModel {
 		this.bitsPerSample = bitsPerSample;
 		this.sampleRate = sampleRate;
 		this.subchunk2Size = subchunk2Size;
+		byte[] byteRateArr = Arrays.copyOfRange(headerByteArray, 28, 32);
+		this.byteRate = ByteBuffer.wrap(byteRateArr).order(ByteOrder.LITTLE_ENDIAN).getInt();
 	}
 
 	
@@ -124,9 +127,10 @@ public class AudioModel {
 		//setSubchunk1Size(24 + dataSize);
 		setChunkSize(36 + getSubchunk2Size());
 	}
-
 	
-	
+	public int getByteRate(){
+		return byteRate;
+	}
 
 
 	@Override

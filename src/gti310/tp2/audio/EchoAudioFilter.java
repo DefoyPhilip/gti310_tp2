@@ -1,5 +1,6 @@
 package gti310.tp2.audio;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import gti310.tp2.io.FileSink;
@@ -42,31 +43,55 @@ public class EchoAudioFilter implements AudioFilter {
 
 			
 			/* getting samples */
-			int sampleSize = audioModel.getBitsPerSample() / 8;
+			//int sampleSize = audioModel.getBitsPerSample() / 8;
+			int sampleSize = audioModel.getByteRate() / 1000;
 			byte[] sampleArray;
 			boolean finishedProcessing = false;
 			int n = 0;
+			
 			int modificationSampleIndex, modificationSampleSignalValue;
 			LinkedList<LinkedList<Integer>> modificationsList = new LinkedList<LinkedList<Integer>>();
+			byte[][] storedByteArray = new byte[delay][sampleSize];
+			int storedByteArrayHead = 0;
 			
 			audioModel.setDataSize(audioModel.getSubchunk2Size() + audioModel.getSampleRate() * delay / 1000);
+			System.out.println(audioModel.getSubchunk2Size());
+			System.out.println(audioModel.getByteRate()/1000);
 			
 			fsink.push(audioModel.getHeaderByteArray());
-
+			System.out.println(audioModel.getSubchunk2Size()/sampleSize);
 			while (!finishedProcessing) {
-				
 				sampleArray = fsource.pop(sampleSize);
 				int sampleSignalValue = sampleArray[0];
 				
 				// check if there are still any bytes left to read
 				// TODO : consider the echo that persists after the end of the file => modify Subchunk2Size in the header
-				if (sampleSignalValue == 0 && modificationsList.size() == 0){
+				if (n >= audioModel.getSubchunk2Size()){
 					finishedProcessing = true;
 					break;
 				}
-
-				
-				if (sampleSignalValue != 0){
+				if (n < delay) {
+					storedByteArray[storedByteArrayHead] = sampleArray;
+					storedByteArrayHead++;
+					if(storedByteArrayHead == delay){
+						storedByteArrayHead = 0;
+					}
+				}
+				else{
+					for (int j = 0; j < sampleSize; j++) {
+						Byte echoSampleByte = storedByteArray[storedByteArrayHead][j];
+						short currentSampleShort = (short) (sampleArray[j] & 0xFF); // 0xFF converts to unsigned for arithmetic operations
+						short echoShort = (short) (echoSampleByte & 0xFF);
+						short resultSampleShortValue = (short) (currentSampleShort + echoShort * attenuation);
+						sampleArray[j] = (byte) (resultSampleShortValue);
+					}
+					storedByteArray[storedByteArrayHead] = sampleArray;
+					storedByteArrayHead++;
+					if(storedByteArrayHead == delay){
+						storedByteArrayHead = 0;
+					}
+				}
+				/*if (sampleSignalValue != 0){
 					LinkedList<Integer> modification = new LinkedList<Integer>();
 					modificationSampleIndex = n + (audioModel.getSampleRate() * delay / 1000);
 					modificationSampleSignalValue = sampleSignalValue;
@@ -91,13 +116,9 @@ public class EchoAudioFilter implements AudioFilter {
 						modificationsList.removeLast();
 					}
 					
-				}
-
-				fsink.push(sampleArray);
-				
+				}*/
 				n++;
-				
-				
+				fsink.push(sampleArray);
 			}
 			
 			System.out.println(n + " samples");
