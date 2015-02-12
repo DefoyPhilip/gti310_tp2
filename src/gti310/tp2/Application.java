@@ -6,6 +6,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import gti310.tp2.audio.EchoAudioFilter;
+import gti310.tp2.audio.AudioModel;
 import gti310.tp2.io.FileSink;
 import gti310.tp2.io.FileSource;
 
@@ -17,13 +18,23 @@ public class Application {
 	 * @throws FileNotFoundException 
 	 */
 	public static void main(String args[]) throws FileNotFoundException {
-		System.out.println("Audio Resample project!");
-		FileSource fs = new FileSource(args[0]);
-		byte[] byteArr = fs.pop(44);
-		byte[] sampleRateArr = Arrays.copyOfRange(byteArr, 24, 28);
-		int frequency = ByteBuffer.wrap(sampleRateArr).order(ByteOrder.LITTLE_ENDIAN).getInt();
-		byte[] bytePerSampleArr = Arrays.copyOfRange(byteArr, 34, 36);
-		short bytePerSample = ByteBuffer.wrap(bytePerSampleArr).order(ByteOrder.LITTLE_ENDIAN).getShort();
-		new EchoAudioFilter(fs,frequency,bytePerSample);
+		FileSource fsource = new FileSource(args[0]);
+		FileSink fsink = new FileSink(args[1]);
+		
+		
+		byte[] headerBytesArray = fsource.pop(44);
+		byte[] sampleRateArr = Arrays.copyOfRange(headerBytesArray, 24, 28);
+		byte[] nbChannelsArr = Arrays.copyOfRange(headerBytesArray, 22, 24);
+		byte[] bytePerSampleArr = Arrays.copyOfRange(headerBytesArray, 34, 36);
+		
+		int sampleRate = ByteBuffer.wrap(sampleRateArr).order(ByteOrder.LITTLE_ENDIAN).getInt();
+		short bitsPerSample = ByteBuffer.wrap(bytePerSampleArr).order(ByteOrder.LITTLE_ENDIAN).getShort();
+		short nbChannels = ByteBuffer.wrap(nbChannelsArr).order(ByteOrder.LITTLE_ENDIAN).getShort();
+		
+		AudioModel audioModel = new AudioModel(headerBytesArray, nbChannels, bitsPerSample, sampleRate);
+		fsink.push(headerBytesArray);
+		
+		EchoAudioFilter echoAudioFilter = new EchoAudioFilter(fsource, fsink, audioModel, Integer.parseInt(args[2]), Float.parseFloat(args[3]));
+		echoAudioFilter.process();
 	}
 }
