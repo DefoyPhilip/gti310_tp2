@@ -49,6 +49,9 @@ public class EchoAudioFilter implements AudioFilter {
 			int modificationSampleIndex, modificationSampleSignalValue;
 			LinkedList<LinkedList<Integer>> modificationsList = new LinkedList<LinkedList<Integer>>();
 			
+			audioModel.setDataSize(audioModel.getSubchunk2Size() + audioModel.getSampleRate() * delay / 1000);
+			
+			fsink.push(audioModel.getHeaderByteArray());
 
 			while (!finishedProcessing) {
 				
@@ -97,7 +100,7 @@ public class EchoAudioFilter implements AudioFilter {
 				
 			}
 			
-			System.out.println(n);
+			System.out.println(n + " samples");
 			fsink.close();
 			
 			
