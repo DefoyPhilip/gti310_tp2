@@ -1,10 +1,6 @@
 package gti310.tp2.audio;
 
-import java.io.FileNotFoundException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.LinkedList;
-import java.util.Map;
 
 import gti310.tp2.io.FileSink;
 import gti310.tp2.io.FileSource;
@@ -42,40 +38,39 @@ public class EchoAudioFilter implements AudioFilter {
 	*/
 	public void process() {
 		if (validateData()){
-			// for testing purposes, we assume that the audio file is 8 bits mono with 44.1k sample rate
+			// for testing purposes, we assume that the audio file is 8 bits
 
 			
 			/* getting samples */
 			int sampleSize = audioModel.getBitsPerSample() / 8;
 			byte[] sampleArray;
-			boolean finishedReading = false;
+			boolean finishedProcessing = false;
 			int n = 0;
-			int modifiedSampleIndex, modifiedSampleSignalValue;
+			int modificationSampleIndex, modificationSampleSignalValue;
 			LinkedList<LinkedList<Integer>> modificationsList = new LinkedList<LinkedList<Integer>>();
 			
 
-			while (!finishedReading) {
+			while (!finishedProcessing) {
 				
-				// TODO : check what kind of array/list/collection is the most efficient for this kind of use
 				sampleArray = fsource.pop(sampleSize);
+				int sampleSignalValue = sampleArray[0];
 				
 				// check if there are still any bytes left to read
-				// TODO : consider the echo that persists after the end of the file
-				if (sampleArray[0] == 0){
-					finishedReading = true;
+				// TODO : consider the echo that persists after the end of the file => modify Subchunk2Size in the header
+				if (sampleSignalValue == 0 && modificationsList.size() == 0){
+					finishedProcessing = true;
 					break;
 				}
 
 				
-				int sampleSignalValue = sampleArray[0];
-				
-				
-				LinkedList<Integer> modification = new LinkedList<Integer>();
-				modifiedSampleIndex = n + (audioModel.getSampleRate() * delay / 1000);
-				modifiedSampleSignalValue = sampleSignalValue; // no attenuation for now
-				modification.push(modifiedSampleIndex);
-				modification.push(modifiedSampleSignalValue);
-				modificationsList.push(modification);
+				if (sampleSignalValue != 0){
+					LinkedList<Integer> modification = new LinkedList<Integer>();
+					modificationSampleIndex = n + (audioModel.getSampleRate() * delay / 1000);
+					modificationSampleSignalValue = sampleSignalValue;
+					modification.push(modificationSampleIndex);
+					modification.push(modificationSampleSignalValue);
+					modificationsList.push(modification);
+				}
 				
 				// check if this sample needs to be modified
 				if (modificationsList.size() > 0) { // performance ?
@@ -83,9 +78,13 @@ public class EchoAudioFilter implements AudioFilter {
 					if (nextModification.getLast() == n) {
 						
 						nextModification.removeLast();
-						Byte newByteValue = nextModification.removeLast().byteValue();
-						//System.out.println(sampleArray[0] + " => " + newByteValue);
-						sampleArray[0] = (byte) (newByteValue + sampleArray[0]);
+						Byte echoSampleByte = nextModification.removeLast().byteValue();
+						short currentSampleShort = (short) (sampleSignalValue & 0xFF); // 0xFF converts to unsigned for arithmetic operations
+						short echoShort = (short) (echoSampleByte & 0xFF);
+						short resultSampleShortValue = (short) (currentSampleShort + echoShort * attenuation);
+						
+
+						sampleArray[0] = (byte) (resultSampleShortValue);
 						modificationsList.removeLast();
 					}
 					
@@ -93,16 +92,12 @@ public class EchoAudioFilter implements AudioFilter {
 
 				fsink.push(sampleArray);
 				
-				
-
-				
-				
 				n++;
 				
 				
 			}
-			System.out.println(n);
 			
+			System.out.println(n);
 			fsink.close();
 			
 			
