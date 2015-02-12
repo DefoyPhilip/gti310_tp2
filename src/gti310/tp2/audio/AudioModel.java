@@ -89,7 +89,7 @@ public class AudioModel {
 
 
 
-	public void setSubchunk1Size(int subchunk1Size) {
+	private void setSubchunk1Size(int subchunk1Size) {
 		this.subchunk1Size = subchunk1Size;
 		byte[] subchunk1SizeBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(subchunk1Size).array();
 		for (int i = 0; i < subchunk1SizeBytes.length; i++){
@@ -107,7 +107,7 @@ public class AudioModel {
 	/*
 	 * Also modifies the value in the header
 	 */
-	public void setSubchunk2Size(int subchunk2Size) {
+	private void setSubchunk2Size(int subchunk2Size) {
 		this.subchunk2Size = subchunk2Size;
 		byte[] subchunk2SizeBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(subchunk2Size).array();
 		for (int i = 0; i < subchunk2SizeBytes.length; i++){
