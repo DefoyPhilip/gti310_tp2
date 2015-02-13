@@ -49,7 +49,7 @@ public class EchoAudioFilter implements AudioFilter {
 			int modificationSampleIndex, modificationSampleSignalValue;
 			LinkedList<LinkedList<Integer>> modificationsList = new LinkedList<LinkedList<Integer>>();
 			
-			audioModel.setDataSize(audioModel.getSubchunk2Size() + audioModel.getSampleRate() * delay / 1000);
+			audioModel.setChunksSize(audioModel.getSubchunk2Size() + audioModel.getSampleRate() * delay / 1000);
 			
 			fsink.push(audioModel.getHeaderByteArray());
 
