@@ -8,13 +8,15 @@ public class AudioModel {
 	byte[] headerByteArray;
 	short numChannels, bitsPerSample;
 	int sampleRate, chunkSize, subchunk1Size, subchunk2Size;
+	short audioFormat;
 	
-	public AudioModel(byte[] headerByteArray, short numChannels, short bitsPerSample, int sampleRate, int chunksize, int subchunk1Size, int subchunk2Size) {
+	public AudioModel(byte[] headerByteArray, short audioFormat, short numChannels, short bitsPerSample, int sampleRate, int chunksize, int subchunk1Size, int subchunk2Size) {
 		this.headerByteArray = headerByteArray;
 		this.numChannels = numChannels;
 		this.bitsPerSample = bitsPerSample;
 		this.sampleRate = sampleRate;
 		this.subchunk2Size = subchunk2Size;
+		this.audioFormat = audioFormat;
 	}
 
 	
@@ -116,6 +118,21 @@ public class AudioModel {
 	}
 	
 	
+	
+	
+	
+	public short getAudioFormat() {
+		return audioFormat;
+	}
+
+
+
+	public void setAudioFormat(short audioFormat) {
+		this.audioFormat = audioFormat;
+	}
+
+
+
 	public void setChunksSize(int dataSize){
 		setSubchunk2Size(dataSize);
 		setChunkSize(36 + getSubchunk2Size());
