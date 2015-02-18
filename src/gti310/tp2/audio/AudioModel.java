@@ -7,7 +7,7 @@ import java.util.Arrays;
 public class AudioModel {
 	byte[] headerByteArray;
 	short numChannels, bitsPerSample;
-	int sampleRate, chunkSize, subchunk1Size, subchunk2Size, byteRate, testo;
+	int sampleRate, chunkSize, subchunk1Size, subchunk2Size, byteRate;
 	
 	public AudioModel(byte[] headerByteArray, short numChannels, short bitsPerSample, int sampleRate, int chunksize, int subchunk1Size, int subchunk2Size) {
 		this.headerByteArray = headerByteArray;

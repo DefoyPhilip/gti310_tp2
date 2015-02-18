@@ -53,7 +53,6 @@ public class EchoAudioFilter implements AudioFilter {
 			audioModel.setChunksSize(audioModel.getSubchunk2Size() + audioModel.getSampleRate() * delay / 1000);
 			
 			fsink.push(audioModel.getHeaderByteArray());
-			System.out.println(audioModel.getSubchunk2Size()/sampleSize);
 			while (!finishedProcessing) {
 				sampleArray = fsource.pop(sampleSize);
 				storedSampleArray = sampleArray.clone();
