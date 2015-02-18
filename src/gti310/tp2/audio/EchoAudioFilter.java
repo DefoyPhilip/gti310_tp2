@@ -1,5 +1,6 @@
 package gti310.tp2.audio;
 
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -24,7 +25,6 @@ public class EchoAudioFilter implements AudioFilter {
 		this.audioModel = audioModel;
 		this.delay = delay;
 		this.attenuation = attenuation;
-			
 	}
 	
 	@Override
@@ -43,16 +43,13 @@ public class EchoAudioFilter implements AudioFilter {
 
 			
 			/* getting samples */
-			//int sampleSize = audioModel.getBitsPerSample() / 8;
 			int sampleSize = audioModel.getByteRate() / 1000;
 			byte[] sampleArray;
 			boolean finishedProcessing = false;
 			int n = 0;
-			
-			int modificationSampleIndex, modificationSampleSignalValue;
-			LinkedList<LinkedList<Integer>> modificationsList = new LinkedList<LinkedList<Integer>>();
-			byte[][] storedByteArray = new byte[delay][sampleSize];
-			int storedByteArrayHead = 0;
+			byte[] storedSampleArray = new byte[sampleSize];
+			byte[][] sampleBuffer = new byte[delay][sampleSize];
+			int sampleBufferHead = 0;
 			
 			audioModel.setDataSize(audioModel.getSubchunk2Size() + audioModel.getSampleRate() * delay / 1000);
 			System.out.println(audioModel.getSubchunk2Size());
@@ -62,69 +59,38 @@ public class EchoAudioFilter implements AudioFilter {
 			System.out.println(audioModel.getSubchunk2Size()/sampleSize);
 			while (!finishedProcessing) {
 				sampleArray = fsource.pop(sampleSize);
-				int sampleSignalValue = sampleArray[0];
-				
-				// check if there are still any bytes left to read
-				// TODO : consider the echo that persists after the end of the file => modify Subchunk2Size in the header
+				storedSampleArray = sampleArray.clone();
 				if (n >= audioModel.getSubchunk2Size()){
 					finishedProcessing = true;
 					break;
 				}
 				if (n < delay) {
-					storedByteArray[storedByteArrayHead] = sampleArray;
-					storedByteArrayHead++;
-					if(storedByteArrayHead == delay){
-						storedByteArrayHead = 0;
+					sampleBuffer[sampleBufferHead] = storedSampleArray;
+					sampleBufferHead++;
+					if(sampleBufferHead == delay){
+						sampleBufferHead = 0;
 					}
 				}
 				else{
 					for (int j = 0; j < sampleSize; j++) {
-						Byte echoSampleByte = storedByteArray[storedByteArrayHead][j];
+						byte echoSampleByte = sampleBuffer[sampleBufferHead][j];
 						short currentSampleShort = (short) (sampleArray[j] & 0xFF); // 0xFF converts to unsigned for arithmetic operations
 						short echoShort = (short) (echoSampleByte & 0xFF);
 						short resultSampleShortValue = (short) (currentSampleShort + echoShort * attenuation);
 						sampleArray[j] = (byte) (resultSampleShortValue);
 					}
-					storedByteArray[storedByteArrayHead] = sampleArray;
-					storedByteArrayHead++;
-					if(storedByteArrayHead == delay){
-						storedByteArrayHead = 0;
+					sampleBuffer[sampleBufferHead] = storedSampleArray;
+					sampleBufferHead++;
+					if(sampleBufferHead == delay){
+						sampleBufferHead = 0;
 					}
 				}
-				/*if (sampleSignalValue != 0){
-					LinkedList<Integer> modification = new LinkedList<Integer>();
-					modificationSampleIndex = n + (audioModel.getSampleRate() * delay / 1000);
-					modificationSampleSignalValue = sampleSignalValue;
-					modification.push(modificationSampleIndex);
-					modification.push(modificationSampleSignalValue);
-					modificationsList.push(modification);
-				}
-				
-				// check if this sample needs to be modified
-				if (modificationsList.size() > 0) { // performance ?
-					LinkedList<Integer> nextModification = modificationsList.getLast();
-					if (nextModification.getLast() == n) {
-						
-						nextModification.removeLast();
-						Byte echoSampleByte = nextModification.removeLast().byteValue();
-						short currentSampleShort = (short) (sampleSignalValue & 0xFF); // 0xFF converts to unsigned for arithmetic operations
-						short echoShort = (short) (echoSampleByte & 0xFF);
-						short resultSampleShortValue = (short) (currentSampleShort + echoShort * attenuation);
-						
-
-						sampleArray[0] = (byte) (resultSampleShortValue);
-						modificationsList.removeLast();
-					}
-					
-				}*/
 				n++;
 				fsink.push(sampleArray);
 			}
 			
 			System.out.println(n + " samples");
 			fsink.close();
-			
-			
 		}
 		
 	}
