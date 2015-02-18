@@ -39,66 +39,52 @@ public class EchoAudioFilter implements AudioFilter {
 	* y : output signal
 	* 
 	*/
+	
+	/*
+	 *  
+	 *
+	 * 
+	 */
 	public void process() {
 		if (validateData()){
-			// for testing purposes, we assume that the audio file is 8 bits
-
-			
-			/* getting samples */
-			int sampleSize = audioModel.getByteRate() / 1000;
-			System.out.println(sampleSize);
-			byte[] sampleArray;
-			boolean finishedProcessing = false;
-			int n = 0;
-			byte[] storedSampleArray = new byte[sampleSize];
-			byte[][] sampleBuffer = new byte[delay][sampleSize];
-			int sampleBufferHead = 0;
-			audioModel.setChunksSize(audioModel.getSubchunk2Size() + audioModel.getSampleRate() * delay / 1000);
-			int bytePerSample = audioModel.getBitsPerSample()/8;
-			System.out.println(bytePerSample);
-			
-			fsink.push(audioModel.getHeaderByteArray());
-			while (!finishedProcessing) {
-				sampleArray = fsource.pop(sampleSize);
-				storedSampleArray = sampleArray.clone();
-				if (n >= audioModel.getSubchunk2Size()){
-					finishedProcessing = true;
-					break;
-				}
-				if (n < delay) {
-					sampleBuffer[sampleBufferHead] = storedSampleArray;
-					sampleBufferHead++;
-					if(sampleBufferHead == delay){
-						sampleBufferHead = 0;
-					}
-				}
-				else{
-					for (int j = 0; j < sampleSize; j = j + bytePerSample) {
-						short currentSample;
-						short echo;
-						if(bytePerSample == 1){
-							currentSample = this.getSample(sampleArray[j]);
-							echo = this.getSample(sampleBuffer[sampleBufferHead][j]);
+			int sampleSize = audioModel.getByteRate() / 1000;																//1
+			byte[] sampleArray;																								//1																			//1
+			int n = 0;																										//1
+			byte[] storedSampleArray = new byte[sampleSize];																//1
+			byte[][] sampleBuffer = new byte[delay][sampleSize];															//1
+			int sampleBufferHead = 0;																						//1
+			audioModel.setChunksSize(audioModel.getSubchunk2Size() + audioModel.getSampleRate() * delay / 1000);			//1
+			int bytePerSample = audioModel.getBitsPerSample()/8;															//1
+			fsink.push(audioModel.getHeaderByteArray());																	//1
+			while (n >= (audioModel.getSubchunk2Size())/sampleSize) {														//N 
+				sampleArray = fsource.pop(sampleSize);																		//N
+				storedSampleArray = sampleArray.clone();																	//1
+				if (n >= delay) {																							//N
+					for (int j = 0; j < sampleSize; j = j + bytePerSample) {												//N
+						short currentSample;																				//N
+						short echo;																							//N
+						if(bytePerSample == 1){																				//N
+							currentSample = this.getSample(sampleArray[j]);													//N
+							echo = this.getSample(sampleBuffer[sampleBufferHead][j]);										//N
 						}	
-						else{
-							currentSample = this.getSample(sampleArray[j],sampleArray[j+1]);
-							echo = this.getSample(sampleBuffer[sampleBufferHead][j],sampleBuffer[sampleBufferHead][j+1]);
+						else{																								//N
+							currentSample = this.getSample(sampleArray[j],sampleArray[j+1]);								//N
+							echo = this.getSample(sampleBuffer[sampleBufferHead][j],sampleBuffer[sampleBufferHead][j+1]);	//N
 						}
-						short resultSampleValue = (short) (currentSample + echo * attenuation);
-						sampleArray[j] = (byte) (resultSampleValue);
-					}
-					sampleBuffer[sampleBufferHead] = storedSampleArray;
-					sampleBufferHead++;
-					if(sampleBufferHead == delay){
-						sampleBufferHead = 0;
+						short resultSampleValue = (short) (currentSample + echo * attenuation);								//N
+						sampleArray[j] = (byte) (resultSampleValue);														//N
 					}
 				}
-				n++;
-				fsink.push(sampleArray);
+				sampleBuffer[sampleBufferHead] = storedSampleArray;															//N
+				sampleBufferHead++;																							//N
+				if(sampleBufferHead == delay){																				//N
+					sampleBufferHead = 0;																					//N
+				}
+				n++;																										//N
+				fsink.push(sampleArray);																					//N
 			}
-			
-			System.out.println(n + " samples");
-			fsink.close();
+			System.out.println("done");
+			fsink.close();																									//1
 		}
 		
 	}
