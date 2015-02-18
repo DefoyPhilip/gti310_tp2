@@ -81,7 +81,7 @@ public class AudioModel {
 
 
 
-	public void setChunkSize(int chunkSize) {
+	public void setChunksSize(int chunkSize) {
 		this.chunkSize = chunkSize;
 		byte[] chunk1SizeBytes = ByteBuffer.allocate(4).putInt(chunkSize).array();
 		for (int i = 0; i < chunk1SizeBytes.length; i++){
@@ -125,7 +125,7 @@ public class AudioModel {
 	public void setDataSize(int dataSize){
 		setSubchunk2Size(dataSize);
 		//setSubchunk1Size(24 + dataSize);
-		setChunkSize(36 + getSubchunk2Size());
+		setChunksSize(36 + getSubchunk2Size());
 	}
 	
 	public int getByteRate(){

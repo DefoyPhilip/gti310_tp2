@@ -37,6 +37,7 @@ public class Application {
 		int subchunk1Size = ByteBuffer.wrap(subchunk1SizeArr).order(ByteOrder.LITTLE_ENDIAN).getInt();
 		int subchunk2Size = ByteBuffer.wrap(subchunk2SizeArr).order(ByteOrder.LITTLE_ENDIAN).getInt();
 		
+		
 		AudioModel audioModel = new AudioModel(headerBytesArray, nbChannels, bitsPerSample, sampleRate, chunkSize, subchunk1Size, subchunk2Size);
 		
 		EchoAudioFilter echoAudioFilter = new EchoAudioFilter(fsource, fsink, audioModel, Integer.parseInt(args[2]), Float.parseFloat(args[3]));
