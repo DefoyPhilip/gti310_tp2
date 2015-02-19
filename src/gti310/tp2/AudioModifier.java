@@ -1,3 +1,9 @@
+/**
+ * Date: 19 FÃ©vrier 2015
+ * Description: Classe servant the controlleur au logiciel.
+ * S'assure que le bon nombre de paramÃ¨tre sont fournis et que le fichier source est trouvable 
+ * @author StÃ©phane Lam, Philip Defoy
+ */
 package gti310.tp2;
 
 import gti310.tp2.audio.AudioModel;
@@ -11,6 +17,16 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 public class AudioModifier {
+	/**
+	 * init
+	 * @param args les paramÃ¨tre fournis par l'utilisateur
+	 * args[0]: La source du fichier sonore
+	 * args[1]: La source oÃ¹ Ã©crire le nouveau fichier
+	 * args[2]: La valeur de dÃ©lai
+	 * args[3]: La valeur d'attÃ©nuation
+	 * Initialise le projet en s'assurant que les arguments sont valide et dÃ©cortique le header
+	 */
+	
 	
 	public void init(String args[]){
 		FileSource fsource;
@@ -23,8 +39,10 @@ public class AudioModifier {
 				fsource = new FileSource(args[0]);
 				FileSink fsink = new FileSink(args[1]);
 				
-				
+				// Lis les info du header
 				byte[] headerBytesArray = fsource.pop(44);
+				
+				// Place les diffÃ©rentes valeurs du header dans des tableau
 				byte[] audioFormatArr = Arrays.copyOfRange(headerBytesArray, 20, 22);
 				byte[] sampleRateArr = Arrays.copyOfRange(headerBytesArray, 24, 28);
 				byte[] nbChannelsArr = Arrays.copyOfRange(headerBytesArray, 22, 24);
@@ -33,7 +51,7 @@ public class AudioModifier {
 				byte[] subchunk1SizeArr = Arrays.copyOfRange(headerBytesArray, 16, 20);
 				byte[] subchunk2SizeArr = Arrays.copyOfRange(headerBytesArray, 40, 44);
 				
-				
+				// Transforme les tableau d'octets en short/int
 				short audioFormat = ByteBuffer.wrap(audioFormatArr).order(ByteOrder.LITTLE_ENDIAN).getShort();
 				int sampleRate = ByteBuffer.wrap(sampleRateArr).order(ByteOrder.LITTLE_ENDIAN).getInt();
 				short bitsPerSample = ByteBuffer.wrap(bytePerSampleArr).order(ByteOrder.LITTLE_ENDIAN).getShort();
@@ -57,7 +75,7 @@ public class AudioModifier {
 				
 			} catch (FileNotFoundException e) {
 				
-				System.out.println("Le fichier spécifié est introuvable ou est présentement ouvert par un autre programme. Veuillez réessayer avec un autre fichier.");
+				System.out.println("Le fichier spï¿½cifiï¿½ est introuvable ou est prï¿½sentement ouvert par un autre programme. Veuillez rï¿½essayer avec un autre fichier.");
 				
 			}
 			
@@ -72,7 +90,7 @@ public class AudioModifier {
 	public void validateArguments(String args[]) throws Exception {
 		
 		if (args.length < 4)
-			throw new Exception("Veuillez spécifier tous les paramètres requis (fichier source, destination, délais, atténuation)");
+			throw new Exception("Veuillez spï¿½cifier tous les paramï¿½tres requis (fichier source, destination, dï¿½lais, attï¿½nuation)");
 		
 	}
 }

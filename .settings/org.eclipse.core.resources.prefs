@@ -1,2 +1,5 @@
 eclipse.preferences.version=1
+encoding//src/gti310/tp2/AudioModifier.java=UTF-8
 encoding//src/gti310/tp2/audio/AudioFilter.java=UTF-8
+encoding//src/gti310/tp2/audio/AudioModel.java=UTF-8
+encoding//src/gti310/tp2/audio/EchoAudioFilter.java=UTF-8
