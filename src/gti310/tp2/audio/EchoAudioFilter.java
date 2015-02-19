@@ -47,10 +47,17 @@ public class EchoAudioFilter implements AudioFilter {
 				byte[] storedSampleArray = new byte[sampleSize];																//1
 				byte[][] sampleBuffer = new byte[delay][sampleSize];															//1
 				int sampleBufferHead = 0;																						//1
-				audioModel.setChunksSize(audioModel.getSubchunk2Size() + audioModel.getSampleRate() * delay / 1000);			//1
 				int bytePerSample = audioModel.getBitsPerSample()/8;															//1
+				
+				audioModel.setChunksSize(audioModel.getSubchunk2Size() 															//1
+						+ audioModel.getSampleRate() 
+						* bytePerSample 
+						* audioModel.getNumChannels() 
+						* Math.abs(delay) / 1000);	
+				
 				fsink.push(audioModel.getHeaderByteArray());																	//1
-				float correctionFactor = 1 / (1 + attenuation);
+				float correctionFactor = 1 / (1 + Math.abs(attenuation));
+				System.out.println(correctionFactor);
 				
 				while (n <= (audioModel.getSubchunk2Size())/sampleSize) {														//N 
 					sampleArray = fsource.pop(sampleSize);																		//N
@@ -64,7 +71,7 @@ public class EchoAudioFilter implements AudioFilter {
 							if(bytePerSample == 1){																				//N
 								currentSample = this.getSample(sampleArray[j]);											//N
 								echo = this.getSample(sampleBuffer[sampleBufferHead][j]);								//N
-								short resultSampleValue = (short) ((currentSample + echo * attenuation) * correctionFactor);							//N
+								short resultSampleValue = (short) ((currentSample + echo * Math.abs(attenuation)) * correctionFactor);							//N
 								sampleArray[j] = (byte) (resultSampleValue);													//N
 							}	
 							
@@ -72,7 +79,7 @@ public class EchoAudioFilter implements AudioFilter {
 							else{																								//N
 								currentSample = (short) this.getSample(sampleArray[j],sampleArray[j+1]);						//N
 								echo = (short) this.getSample(sampleBuffer[sampleBufferHead][j],sampleBuffer[sampleBufferHead][j+1]);	//N
-								short resultSampleValue = (short) (currentSample + echo * attenuation);							//N
+								short resultSampleValue = (short) (currentSample + echo * Math.abs(attenuation));							//N
 								byte[] tempSampleArray = ByteBuffer.allocate(2).putShort(resultSampleValue).array();			//N
 								sampleArray[j] = tempSampleArray[0];
 								sampleArray[j+1] = tempSampleArray[0];
