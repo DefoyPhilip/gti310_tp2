@@ -7,7 +7,7 @@ import java.util.Arrays;
 public class AudioModel {
 	byte[] headerByteArray;
 	short numChannels, bitsPerSample;
-	int sampleRate, chunkSize, subchunk1Size, subchunk2Size;
+	int sampleRate, chunkSize, subchunk1Size, subchunk2Size, byteRate;
 	
 	public AudioModel(byte[] headerByteArray, short numChannels, short bitsPerSample, int sampleRate, int chunksize, int subchunk1Size, int subchunk2Size) {
 		this.headerByteArray = headerByteArray;
@@ -15,6 +15,8 @@ public class AudioModel {
 		this.bitsPerSample = bitsPerSample;
 		this.sampleRate = sampleRate;
 		this.subchunk2Size = subchunk2Size;
+		byte[] byteRateArr = Arrays.copyOfRange(headerByteArray, 28, 32);
+		this.byteRate = ByteBuffer.wrap(byteRateArr).order(ByteOrder.LITTLE_ENDIAN).getInt();
 	}
 
 	
@@ -79,22 +81,26 @@ public class AudioModel {
 
 
 
-	private void setChunkSize(int chunkSize) {
+	public void setChunksSize(int chunkSize) {
 		this.chunkSize = chunkSize;
-		byte[] chunk1SizeBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(chunkSize).array();
+		byte[] chunk1SizeBytes = ByteBuffer.allocate(4).putInt(chunkSize).array();
 		for (int i = 0; i < chunk1SizeBytes.length; i++){
 			headerByteArray[4+i] = chunk1SizeBytes[i];
 		}
+		
+		System.out.println(getChunkSize());
 	}
 
 
 
-	private void setSubchunk1Size(int subchunk1Size) {
+	public void setSubchunk1Size(int subchunk1Size) {
 		this.subchunk1Size = subchunk1Size;
-		byte[] subchunk1SizeBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(subchunk1Size).array();
+		byte[] subchunk1SizeBytes = ByteBuffer.allocate(4).putInt(subchunk1Size).array();
 		for (int i = 0; i < subchunk1SizeBytes.length; i++){
 			headerByteArray[16+i] = subchunk1SizeBytes[i];
 		}
+		
+		System.out.println("new 1size = " + getSubchunk1Size());
 	}
 
 
@@ -107,21 +113,25 @@ public class AudioModel {
 	/*
 	 * Also modifies the value in the header
 	 */
-	private void setSubchunk2Size(int subchunk2Size) {
+	public void setSubchunk2Size(int subchunk2Size) {
 		this.subchunk2Size = subchunk2Size;
-		byte[] subchunk2SizeBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(subchunk2Size).array();
+		byte[] subchunk2SizeBytes = ByteBuffer.allocate(4).putInt(subchunk2Size).array();
 		for (int i = 0; i < subchunk2SizeBytes.length; i++){
 			headerByteArray[40+i] = subchunk2SizeBytes[i];
 		}
 	}
 	
 	
-	public void setChunksSize(int dataSize){
+	public void setDataSize(int dataSize){
 		setSubchunk2Size(dataSize);
-		setChunkSize(36 + getSubchunk2Size());
+		//setSubchunk1Size(24 + dataSize);
+		setChunksSize(36 + getSubchunk2Size());
+	}
+	
+	public int getByteRate(){
+		return byteRate;
 	}
 
-	
 
 	@Override
 	public String toString() {
