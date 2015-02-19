@@ -99,7 +99,7 @@ public class AudioModel {
 
 	public void setChunkSize(int chunkSize) {
 		this.chunkSize = chunkSize;
-		byte[] chunk1SizeBytes = ByteBuffer.allocate(4).putInt(chunkSize).array();
+		byte[] chunk1SizeBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(chunkSize).array();
 		for (int i = 0; i < chunk1SizeBytes.length; i++){
 			headerByteArray[4+i] = chunk1SizeBytes[i];
 		}
@@ -110,7 +110,7 @@ public class AudioModel {
 
 	public void setSubchunk1Size(int subchunk1Size) {
 		this.subchunk1Size = subchunk1Size;
-		byte[] subchunk1SizeBytes = ByteBuffer.allocate(4).putInt(subchunk1Size).array();
+		byte[] subchunk1SizeBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(subchunk1Size).array();
 		for (int i = 0; i < subchunk1SizeBytes.length; i++){
 			headerByteArray[16+i] = subchunk1SizeBytes[i];
 		}
@@ -129,7 +129,7 @@ public class AudioModel {
 	 */
 	public void setSubchunk2Size(int subchunk2Size) {
 		this.subchunk2Size = subchunk2Size;
-		byte[] subchunk2SizeBytes = ByteBuffer.allocate(4).putInt(subchunk2Size).array();
+		byte[] subchunk2SizeBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(subchunk2Size).array();
 		for (int i = 0; i < subchunk2SizeBytes.length; i++){
 			headerByteArray[40+i] = subchunk2SizeBytes[i];
 		}

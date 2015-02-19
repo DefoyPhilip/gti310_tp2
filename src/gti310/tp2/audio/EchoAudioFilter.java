@@ -51,7 +51,7 @@ public class EchoAudioFilter implements AudioFilter {
 				int bytePerSample = audioModel.getBitsPerSample()/8;															//1
 				fsink.push(audioModel.getHeaderByteArray());																	//1
 
-				while (n >= (audioModel.getSubchunk2Size())/sampleSize) {														//N 
+				while (n <= (audioModel.getSubchunk2Size())/sampleSize) {														//N 
 					sampleArray = fsource.pop(sampleSize);																		//N
 					storedSampleArray = sampleArray.clone();																	//1
 					if (n >= delay) {																							//N
