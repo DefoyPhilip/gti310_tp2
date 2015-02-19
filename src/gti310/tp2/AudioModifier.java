@@ -42,12 +42,18 @@ public class AudioModifier {
 			
 			AudioModel audioModel = new AudioModel(headerBytesArray, audioFormat, nbChannels, bitsPerSample, sampleRate, chunkSize, subchunk1Size, subchunk2Size);
 			
+			try {
+				audioModel.validateChunkSize();
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+			
 			EchoAudioFilter echoAudioFilter = new EchoAudioFilter(fsource, fsink, audioModel, Integer.parseInt(args[2]), Float.parseFloat(args[3]));
 			echoAudioFilter.process();
 			
 		} catch (FileNotFoundException e) {
 			
-			System.out.println("Le fichier spécifié est introuvable");
+			System.out.println("Le fichier spécifié est introuvable ou est présentement ouvert par un autre programme. Veuillez réessayer avec un autre fichier.");
 			
 		}
 		
@@ -65,8 +71,10 @@ public class AudioModifier {
 		if (Integer.parseInt(args[2]) < 1 || Integer.parseInt(args[2]) > 10000)
 			throw new Exception("Veuillez entrer une valeur comprise entre 1 et 10 000 pour le délais.");
 		
+		// validate attenuation value
 		if (Float.parseFloat(args[3]) < -1 || Float.parseFloat(args[3]) > 1)
 			throw new Exception("Veuillez entrer une valeur comprise entre -1 et 1 pour l'atténuation.");
+		
 		
 	}
 }

@@ -10,13 +10,27 @@ public class AudioModel {
 	int sampleRate, chunkSize, subchunk1Size, subchunk2Size;
 	short audioFormat;
 	
-	public AudioModel(byte[] headerByteArray, short audioFormat, short numChannels, short bitsPerSample, int sampleRate, int chunksize, int subchunk1Size, int subchunk2Size) {
+	public AudioModel(byte[] headerByteArray, short audioFormat, short numChannels, short bitsPerSample, int sampleRate, int chunkSize, int subchunk1Size, int subchunk2Size) {
 		this.headerByteArray = headerByteArray;
 		this.numChannels = numChannels;
 		this.bitsPerSample = bitsPerSample;
 		this.sampleRate = sampleRate;
+		this.chunkSize = chunkSize;
+		this.subchunk1Size = subchunk1Size;
 		this.subchunk2Size = subchunk2Size;
 		this.audioFormat = audioFormat;
+	}
+	
+	/*
+	 * This method validates the chunksizes is defined in the header
+	 */
+	public boolean validateChunkSize() throws Exception{
+		
+		// validate if PCM format
+		if (this.getChunkSize() <= 0 || this.getSubchunk1Size() <= 0 || this.getSubchunk2Size() <= 0)
+			throw new Exception("Le fichier audio contient des erreurs dans l'entête.");
+		
+		return true;
 	}
 
 	
@@ -137,6 +151,7 @@ public class AudioModel {
 		setSubchunk2Size(dataSize);
 		setChunkSize(36 + getSubchunk2Size());
 	}
+	
 
 	
 
