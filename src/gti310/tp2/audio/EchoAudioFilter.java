@@ -50,6 +50,7 @@ public class EchoAudioFilter implements AudioFilter {
 				audioModel.setChunksSize(audioModel.getSubchunk2Size() + audioModel.getSampleRate() * delay / 1000);			//1
 				int bytePerSample = audioModel.getBitsPerSample()/8;															//1
 				fsink.push(audioModel.getHeaderByteArray());																	//1
+				float correctionFactor = 1 / (1 + attenuation);
 				
 				while (n <= (audioModel.getSubchunk2Size())/sampleSize) {														//N 
 					sampleArray = fsource.pop(sampleSize);																		//N
@@ -61,11 +62,10 @@ public class EchoAudioFilter implements AudioFilter {
 							
 							// for 8 bits
 							if(bytePerSample == 1){																				//N
-								currentSample = (short) this.getSample(sampleArray[j]);											//N
-								echo = (short) this.getSample(sampleBuffer[sampleBufferHead][j]);								//N
-								short resultSampleValue = (short) (currentSample + echo * attenuation);							//N
-								byte[] tempSampleArray = ByteBuffer.allocate(2).putShort(resultSampleValue).array();			//N
-								sampleArray[j] = tempSampleArray[1];															//N
+								currentSample = this.getSample(sampleArray[j]);											//N
+								echo = this.getSample(sampleBuffer[sampleBufferHead][j]);								//N
+								short resultSampleValue = (short) ((currentSample + echo * attenuation) * correctionFactor);							//N
+								sampleArray[j] = (byte) (resultSampleValue);													//N
 							}	
 							
 							// for 16 bits
