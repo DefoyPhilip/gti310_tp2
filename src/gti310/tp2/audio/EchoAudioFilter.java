@@ -42,7 +42,7 @@ public class EchoAudioFilter implements AudioFilter {
 		try {
 			if (validateData()){
 				int sampleSize = audioModel.getByteRate() / 1000;																//1
-				byte[] sampleArray;																								//1																			//1
+				byte[] sampleArray;																								//1
 				int n = 0;																										//1
 				byte[] storedSampleArray = new byte[sampleSize];																//1
 				byte[][] sampleBuffer = new byte[delay][sampleSize];															//1
@@ -50,14 +50,14 @@ public class EchoAudioFilter implements AudioFilter {
 				audioModel.setChunksSize(audioModel.getSubchunk2Size() + audioModel.getSampleRate() * delay / 1000);			//1
 				int bytePerSample = audioModel.getBitsPerSample()/8;															//1
 				fsink.push(audioModel.getHeaderByteArray());																	//1
-
+				
 				while (n <= (audioModel.getSubchunk2Size())/sampleSize) {														//N 
 					sampleArray = fsource.pop(sampleSize);																		//N
 					storedSampleArray = sampleArray.clone();																	//1
 					if (n >= delay) {																							//N
 						for (int j = 0; j < sampleSize; j = j + bytePerSample) {												//N
-							short currentSample;																				//N
-							short echo;																							//N
+							int currentSample;																					//N
+							int echo;																							//N
 							if(bytePerSample == 1){																				//N
 								currentSample = this.getSample(sampleArray[j]);													//N
 								echo = this.getSample(sampleBuffer[sampleBufferHead][j]);										//N
@@ -66,7 +66,9 @@ public class EchoAudioFilter implements AudioFilter {
 								currentSample = this.getSample(sampleArray[j],sampleArray[j+1]);								//N
 								echo = this.getSample(sampleBuffer[sampleBufferHead][j],sampleBuffer[sampleBufferHead][j+1]);	//N
 							}
-							short resultSampleValue = (short) (currentSample + echo * attenuation);								//N
+							int resultSampleValue = (int) (currentSample + echo * attenuation);									//N
+							
+							
 							sampleArray[j] = (byte) (resultSampleValue);														//N
 						}
 					}
@@ -112,20 +114,20 @@ public class EchoAudioFilter implements AudioFilter {
 	}
 	
 	
-	private short getSample(byte sampleByte){
-		short sample = 0;
-		sample = (short) (sampleByte & 0xFF);
+	private int getSample(byte sampleByte){
+		int sample = 0;
+		sample = (int) (sampleByte & 0xFF);
 		return sample;
 	}
 	
 	
-	private short getSample(byte sampleByte, byte secondSampleByte){
-		short sample = 0;
-		ByteBuffer bb = ByteBuffer.allocate(2);
+	private int getSample(byte sampleByte, byte secondSampleByte){
+		int sample = 0;
+		ByteBuffer bb = ByteBuffer.allocate(4);
 		bb.order(ByteOrder.LITTLE_ENDIAN);
 		bb.put(sampleByte);
 		bb.put(secondSampleByte);
-		sample = bb.getShort(0);
+		sample = bb.getInt(0);
 		return sample;
 	}
 
