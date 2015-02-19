@@ -17,7 +17,7 @@ public class AudioModifier {
 		
 		try {
 			this.validateArguments(args);
-			
+	
 			
 			try {
 				fsource = new FileSource(args[0]);
@@ -46,6 +46,12 @@ public class AudioModifier {
 				AudioModel audioModel = new AudioModel(headerBytesArray, audioFormat, nbChannels, bitsPerSample, sampleRate, chunkSize, subchunk1Size, subchunk2Size);
 				
 				
+				try {
+					audioModel.validateChunkSize();
+				} catch (Exception e) {
+					System.out.println(e);
+				}
+				
 				EchoAudioFilter echoAudioFilter = new EchoAudioFilter(fsource, fsink, audioModel, Integer.parseInt(args[2]), Float.parseFloat(args[3]));
 				echoAudioFilter.process();
 				
@@ -67,8 +73,6 @@ public class AudioModifier {
 		
 		if (args.length < 4)
 			throw new Exception("Veuillez spécifier tous les paramètres requis (fichier source, destination, délais, atténuation)");
-		
-		
 		
 	}
 }

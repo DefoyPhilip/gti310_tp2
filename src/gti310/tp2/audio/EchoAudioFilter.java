@@ -63,7 +63,7 @@ public class EchoAudioFilter implements AudioFilter {
 						* Math.abs(delay) / 1000);	
 				
 				fsink.push(audioModel.getHeaderByteArray());																	//1
-				float correctionFactor = 1 / (1 + Math.abs(attenuation));
+				float correctionFactor = 1 / (1 + Math.abs(attenuation));														//1
 				
 				while (n <= (audioModel.getSubchunk2Size())/sampleSize) {														//N 
 					sampleArray = fsource.pop(sampleSize);																		//N
@@ -75,17 +75,19 @@ public class EchoAudioFilter implements AudioFilter {
 							
 							// for 8 bits
 							if(bytePerSample == 1){																				//N
-								currentSample = this.getSample(sampleArray[j]);											//N
-								echo = this.getSample(sampleBuffer[sampleBufferHead][j]);								//N
-								short resultSampleValue = (short) ((currentSample + echo * Math.abs(attenuation)) * correctionFactor);							//N
+								currentSample = this.getSample(sampleArray[j]);													//N
+								echo = this.getSample(sampleBuffer[sampleBufferHead][j]);										//N
+								short resultSampleValue = 
+										(short) ((currentSample + echo * Math.abs(attenuation)) * correctionFactor);			//N
 								sampleArray[j] = (byte) (resultSampleValue);													//N
 							}	
 							
 							// for 16 bits
 							else{																								//N
 								currentSample = (short) this.getSample(sampleArray[j],sampleArray[j+1]);						//N
-								echo = (short) this.getSample(sampleBuffer[sampleBufferHead][j],sampleBuffer[sampleBufferHead][j+1]);	//N
-								short resultSampleValue = (short) (currentSample + echo * Math.abs(attenuation));							//N
+								echo = (short) this.getSample(sampleBuffer[sampleBufferHead][j],								//N
+																sampleBuffer[sampleBufferHead][j+1]);	
+								short resultSampleValue = (short) (currentSample + echo * Math.abs(attenuation));				//N
 								byte[] tempSampleArray = ByteBuffer.allocate(2).putShort(resultSampleValue).array();			//N
 								sampleArray[j] = tempSampleArray[0];
 								sampleArray[j+1] = tempSampleArray[0];
