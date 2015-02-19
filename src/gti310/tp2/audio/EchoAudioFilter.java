@@ -19,6 +19,10 @@ public class EchoAudioFilter implements AudioFilter {
 	
 	public static final Integer[] SUPPORTED_SAMPLE_RATES = new Integer[] {8000, 44100};
 	public static final Short[] SUPPORTED_BITS_PER_SAMPLE = new Short[] {8, 16};
+	public static final short MIN_DELAY = 0;
+	public static final short MAX_DELAY = 10000;
+	public static final float MIN_ATTENUATION = -1;
+	public static final float MAX_ATTENUATION = 1;
 	
 
 	public EchoAudioFilter(FileSource fsource, FileSink fsink, AudioModel audioModel, int delay, float attenuation){
@@ -127,6 +131,14 @@ public class EchoAudioFilter implements AudioFilter {
 		// validate sample rate (44.1k or 8k)
 		if (!Arrays.asList(SUPPORTED_SAMPLE_RATES).contains(audioModel.getSampleRate()))
 			throw new Exception("Ce filtre ne peut être appliqué que sur les fichiers audios dont le taux d'échantillonnage est de 44.1kHz ou de 8kHz.");
+		
+		// validate delay value
+		if (delay <= MIN_DELAY || delay > MAX_DELAY)
+			throw new Exception("Veuillez entrer une valeur comprise entre 1 et 10 000 pour le délais.");
+		
+		// validate attenuation value
+		if (attenuation < MIN_ATTENUATION || attenuation > MAX_ATTENUATION)
+			throw new Exception("Veuillez entrer une valeur comprise entre -1 et 1 pour l'atténuation.");
 		
 		return true;
 	}
