@@ -2,7 +2,7 @@ package gti310.tp2.audio;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
+import java.util.Arrays;
 
 import gti310.tp2.io.FileSink;
 import gti310.tp2.io.FileSource;
@@ -16,6 +16,9 @@ public class EchoAudioFilter implements AudioFilter {
 	AudioModel audioModel;
 	int delay;
 	float attenuation;
+	
+	public static final Integer[] SUPPORTED_SAMPLE_RATES = new Integer[] {8000, 44100};
+	public static final Short[] SUPPORTED_BITS_PER_SAMPLE = new Short[] {8, 16};
 	
 
 	public EchoAudioFilter(FileSource fsource, FileSink fsink, AudioModel audioModel, int delay, float attenuation){
@@ -57,7 +60,6 @@ public class EchoAudioFilter implements AudioFilter {
 				
 				fsink.push(audioModel.getHeaderByteArray());																	//1
 				float correctionFactor = 1 / (1 + Math.abs(attenuation));
-				System.out.println(correctionFactor);
 				
 				while (n <= (audioModel.getSubchunk2Size())/sampleSize) {														//N 
 					sampleArray = fsource.pop(sampleSize);																		//N
@@ -119,11 +121,11 @@ public class EchoAudioFilter implements AudioFilter {
 			throw new Exception("Ce filtre ne peut être appliqué que sur les fichiers au format PCM (sans compression).");
 		
 		// validate bits per sample 8 bits or 16 bits per sample
-		if (audioModel.getBitsPerSample() != 8 && audioModel.getBitsPerSample() != 16)
+		if (!Arrays.asList(SUPPORTED_BITS_PER_SAMPLE).contains(audioModel.getBitsPerSample()))
 			throw new Exception("Ce filtre ne peut être appliqué que sur les fichiers audios de 8 ou 16 bits par échantillon.");
 		
 		// validate sample rate (44.1k or 8k)
-		if (audioModel.getSampleRate() != 44100 && audioModel.getSampleRate() != 8000)
+		if (!Arrays.asList(SUPPORTED_SAMPLE_RATES).contains(audioModel.getSampleRate()))
 			throw new Exception("Ce filtre ne peut être appliqué que sur les fichiers audios dont le taux d'échantillonnage est de 44.1kHz ou de 8kHz.");
 		
 		return true;
